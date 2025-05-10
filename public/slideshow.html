@@ -44,7 +44,7 @@
 
     async function fetchSlides() {
       try {
-        const res = await fetch(`http://192.168.1.8:5000/api/slideshow?screen_id=${screenId}`);
+        const res = await fetch(`https://cardbey-backend.onrender.com/api/slideshow?screen_id=${screenId}`);
         const data = await res.json();
         slides = data.slides;
         showSlide();
