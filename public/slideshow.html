@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cardbey Slideshow</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+    #slideshow img {
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+    #caption {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div id="slideshow">
+  <img id="slideImage" src="" alt="" style="max-width:100%; max-height:80vh; display:block; margin:auto;">
+  <div id="caption" style="text-align:center; margin-top:1rem;"></div>
+</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const screenId = params.get("screen_id");
+    const slideImage = document.getElementById("slideImage");
+    const caption = document.getElementById("caption");
+
+    let slides = [];
+    let index = 0;
+
+    async function fetchSlides() {
+      try {
+        const res = await fetch(`http://192.168.1.8:5000/api/slideshow?screen_id=${screenId}`);
+        const data = await res.json();
+        slides = data.slides;
+        showSlide();
+      } catch (e) {
+        console.error("Failed to fetch slides:", e);
+        caption.textContent = "Failed to load slides";
+      }
+    }
+
+    function showSlide() {
+  if (slides.length === 0) return;
+  const current = slides[index];
+  slideImage.src = current.imageUrl;
+  slideImage.style.display = "block";
+  caption.textContent = current.caption;
+  index = (index + 1) % slides.length;
+  setTimeout(showSlide, 5000); // Change slide every 5 sec
+}
+
+
+    fetchSlides();
+  </script>
+</body>
+</html>
