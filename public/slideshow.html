@@ -43,15 +43,21 @@
     let index = 0;
 
     async function fetchSlides() {
-      try {
-        const res = await fetch(`https://cardbey-backend.onrender.com/api/slideshow?screen_id=${screenId}`);
-        const data = await res.json();
-        slides = data.slides;
-        showSlide();
-      } catch (e) {
-        console.error("Failed to fetch slides:", e);
-        caption.textContent = "Failed to load slides";
-      }
+
+     try {
+  const res = await fetch(`https://cardbey-backend.onrender.com/api/slideshow?screen_id=${screenId}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  slides = data.slides;
+  showSlide();
+} catch (e) {
+  console.error("Failed to fetch slides:", e);
+  caption.textContent = "Failed to load slides";
+}
+
+
+
+>>>>>>> f244583 (Add slideshow display page)
     }
 
     function showSlide() {
