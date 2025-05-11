@@ -42,18 +42,19 @@
     let slides = [];
     let index = 0;
 
-    async function fetchSlides() {
-
-     try {
-  const res = await fetch(`https://cardbey-backend.onrender.com/api/slideshow?screen_id=${screenId}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  slides = data.slides;
-  showSlide();
-} catch (e) {
-  console.error("Failed to fetch slides:", e);
-  caption.textContent = "Failed to load slides";
-}
+ 
+  async function fetchSlides() {
+    try {
+      const res = await fetch(`https://cardbey-backend.onrender.com/api/slideshow?screen_id=${screenId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      slides = data.slides;
+      showSlide();
+    } catch (e) {
+      console.error("Failed to fetch slides:", e);
+      caption.textContent = "Failed to load slides";
+    }
+  }
 
 
 
