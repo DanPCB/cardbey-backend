@@ -1,35 +1,56 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const connectDB = require('./config/db');
-
-dotenv.config();
-connectDB();
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 
-// Lock CORS to your landing domains (broaden if you need local dev)
-app.use(cors({
-  origin: [
-    "https://cardbey-landing.onrender.com",
-    "https://landing.cardbey.com",
-  ],
-}));
-
+app.use(cors());
 app.use(express.json());
 
-// ✅ Serve static files (unchanged)
-app.use(express.static("public"));
+// health check
+app.get("/", (_req, res) => res.send("Backend is alive ✅"));
 
-// Routes
-app.use('/api/slideshow', require('./routes/slideshow'));
-app.use('/api/chat', require('./routes/chat'));   // ← NEW
+// chat route
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { messages } = req.body || {};
+    if (!Array.isArray(messages)) {
+      return res.status(400).json({ error: "messages[] required" });
+    }
 
-// Optional health check
-app.get('/', (_req, res) => res.send('Backend is alive ✅'));
-app.get('/api/chat', (_req, res) => res.json({ ok: true }));   // temp GET check
-app.post('/api/chat', (req, res) => res.json({ echo: req.body || null })); // temp POST echo
+    const provider = (process.env.CHAT_PROVIDER || "xai").toLowerCase();
+    let url, headers, body;
 
+    if (provider === "xai") {
+      url = "https://api.x.ai/v1/chat/completions";
+      headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.XAI_API_KEY}`,
+      };
+      body = JSON.stringify({
+        model: process.env.CHAT_MODEL || "grok-2-1212",
+        messages,
+      });
+    } else {
+      url = "https://api.openai.com/v1/chat/completions";
+      headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      };
+      body = JSON.stringify({
+        model: process.env.CHAT_MODEL || "gpt-4o-mini",
+        messages,
+      });
+    }
 
-const PORT = process.env.PORT || 5000; // Render will set PORT
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    const r = await fetch(url, { method: "POST", headers, body });
+    const text = await r.text();
+    res.status(r.status).type("application/json").send(text);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Chat error." });
+  }
+});
+
+// listen
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
