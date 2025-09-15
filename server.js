@@ -27,6 +27,9 @@ app.use('/api/chat', require('./routes/chat'));   // ← NEW
 
 // Optional health check
 app.get('/', (_req, res) => res.send('Backend is alive ✅'));
+app.get('/api/chat', (_req, res) => res.json({ ok: true }));   // temp GET check
+app.post('/api/chat', (req, res) => res.json({ echo: req.body || null })); // temp POST echo
+
 
 const PORT = process.env.PORT || 5000; // Render will set PORT
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
